@@ -3,7 +3,6 @@ package com.example.corkportal;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.net.Uri;
@@ -28,13 +27,7 @@ import android.graphics.Bitmap.CompressFormat;
 
 public class CorkBoardUI extends Activity {
 
-	private static final String ACTION_EDIT_FEED = "musubi.intent.action.EDIT_FEED";
-	private static final int REQUEST_EDIT_FEED = 2;
-
-	private static final String ADD_TITLE = "member_header";
-	private static final String ADD_HEADER = "Channel Members";
-
-	private static final String TAG = "Channel_UI"; 
+	private static final String TAG = "CorkBoardUI"; 
 
 	static final String PICSAY_PACKAGE_PREFIX = "com.shinycore.picsay";
 	static final String ACTION_MEDIA_CAPTURE = "mobisocial.intent.action.MEDIA_CAPTURE";
@@ -45,87 +38,55 @@ public class CorkBoardUI extends Activity {
 	public static final String FILES_SUBFOLDER = "Musubi/Files";
 	public static final String APPS_SUBFOLDER = "Musubi/Apps";
 
-	private Uri FeedUri = null;
 	private String mRowId;
 	private static Uri newImageUri;
 	
 	private Bitmap mImageBitMap; 
 
-	
-	public final static String APP_PATH_SD_CARD = "/bao";
-
-	//==============================================================
-    public static final String SUPER_APP_ID = "mobisocial.musubi";
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.corkboard_ui);	
-		
 		Bundle extras = getIntent().getExtras();
-		if (extras != null) {
-			String uri_string = extras.getString("feedURI");
-			FeedUri = Uri.parse(uri_string); 
-			mRowId = extras.getString("rowId");
-		}		
+		mRowId = extras.getString("cb_id");
 	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.channel_menu, menu);
 		return true;
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		switch(item.getItemId()) {
-		case R.id.add_members:
-			if (!Musubi.isMusubiInstalled(this)) {
-				Log.d(TAG, "Musubi is not installed.");
-				return super.onOptionsItemSelected(item);
-			}
-
-			Intent intent = new Intent(ACTION_EDIT_FEED);
-			intent.putExtra(ADD_TITLE, ADD_HEADER);   	
-			intent.setData(FeedUri);
-			startActivityForResult(intent, REQUEST_EDIT_FEED);
-			return true;
-		default:
 			return super.onOptionsItemSelected(item);
-		}
 	}
-
 
 	@Override
 	public void onResume() {
-		/*IntentFilter iff = new IntentFilter();
-		iff.addAction("mobisocial.intent.action.DATA_RECEIVED");
-		this.registerReceiver(this.messageReceiver, iff);*/
 		super.onResume();
 	}
 	
 	private File createFile() throws Exception
 	{
-		
+		Log.d(TAG, "Entered CreateFile");
 		String state = Environment.getExternalStorageState();
 		if (Environment.MEDIA_MOUNTED.equals(state)) {
-			File path = new File(Environment.getExternalStorageDirectory().getPath() + "/Astro_Channel/");
+			File path = new File(Environment.getExternalStorageDirectory().getPath() + "/CorkBoard/");
 			path.mkdirs();
-			File file = new File(path, "Feed" + mRowId.toString() + ".jpg");
+
+			File file = new File(path, "CorkBoard" + "_" + mRowId + ".jpg");
 			Log.d("TAG", path + " AND " + file);
+			Log.d(TAG, "Returned File");
 			return file; 
-			}
+		}
+		Log.d(TAG, "Returned NULL");
 		return null; 
 	}
 
 	@SuppressWarnings("deprecation")
 	public void AddPhotos(View v){
-		
-		activeFeed = Musubi.getInstance(v.getContext()).getFeed(FeedUri);	
-		Log.d(TAG, activeFeed.toString());
-		
-		AlertDialog alert = new AlertDialog.Builder(ChannelUI.this).create();
+		AlertDialog alert = new AlertDialog.Builder(CorkBoardUI.this).create();
 		alert.setTitle("Photo Options"); 
 		alert.setButton("From Gallery", new DialogInterface.OnClickListener() {
 
@@ -145,10 +106,13 @@ public class CorkBoardUI extends Activity {
 				    File photoFile;
 				    try
 				    {
-				        // place where to store camera taken picture		
+				        // place where to store camera taken picture
+				    	Log.d(TAG,"Creating File");
 				        photoFile = createFile();
-				        if(photoFile == null)
+				        if(photoFile == null){
+				        	Log.d(TAG, "Null photoFile");
 				        	return;
+				        }
 				        
 				        photoFile.delete();
 				    }
@@ -194,7 +158,7 @@ public class CorkBoardUI extends Activity {
 	    try
 	    {
 	    	newBitMap = android.provider.MediaStore.Images.Media.getBitmap(cr, newImageUri);
-	    	scaleDownBitmap(newBitMap, 100, ChannelUI.this); 
+	    	scaleDownBitmap(newBitMap, 100, CorkBoardUI.this); 
 	    }
 	    catch (Exception e)
 	    {
@@ -205,34 +169,18 @@ public class CorkBoardUI extends Activity {
 
 	
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		Log.d("MEH", "ENTERED HERE");
-
 		if (requestCode == REQUEST_CAPTURE_MEDIA && resultCode == RESULT_OK) {
-			Log.d("MEH", "ENTERED INSIDE ON IF");
-
 			grabImage();
 			if(mImageBitMap == null)
-			    Log.d("Meh", "FAILED");
+			    Log.d(TAG, "Bitmap is null");
 
-	    	JSONObject base = new JSONObject();
-		    byte[] byte_arr = getBytesFromBitmap(mImageBitMap); 
+	    	new JSONObject();
+		    getBytesFromBitmap(mImageBitMap); 
 		    
-		    MemObj pictureObj = new MemObj("image", base, byte_arr);		    
-		    
-		    activeFeed.postObj(pictureObj);
-		    		    
-		    /*JSONObject json = new JSONObject();
-            try {
-                json.put("feeduri", FeedUri.toString());                 
-            } catch (JSONException e) {
-                Log.e(TAG, "json error", e);
-                return;
-            }
-
-            activeFeed.postObj(new MemObj("feeduri", json));
-		    */
-		    
-            Log.d(TAG, "FEED: " + activeFeed.toString() );
+//		    MemObj pictureObj = new MemObj("image", base, byte_arr);		    
+//		    
+//		    activeFeed.postObj(pictureObj);
+		    	
             
             return; 	
 		}

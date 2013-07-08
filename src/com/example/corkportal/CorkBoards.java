@@ -42,11 +42,11 @@ public class CorkBoards extends Activity {
 //			    	String rowId = c.getString(0);
 //			    	String retrieved_uri = c.getString(1);
 			    	Log.d(TAG, "CLICKED");
-			    	Intent intent = new Intent(v.getContext(), MainActivity.class);
-					startActivityForResult(intent,0);
+			    	Intent intent = new Intent(v.getContext(), CorkBoardUI.class);
+			    	intent.putExtra("cb_id", "test");
+			    	startActivityForResult(intent,0);
 			    	
 //			    	Intent intent = new Intent(v.getContext(), ChannelUI.class);
-//			    	intent.putExtra("feedURI", retrieved_uri);
 //			    	intent.putExtra("rowId", rowId);
 //					startActivityForResult(intent,0);
 			    }

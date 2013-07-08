@@ -23,7 +23,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".CorkBoards"></activity>
-        
+        <activity android:name=".CorkBoardUI"></activity>
     </application>
 
 </manifest>
