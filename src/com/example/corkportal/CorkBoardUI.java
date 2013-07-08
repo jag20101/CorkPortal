@@ -28,10 +28,15 @@ import android.graphics.Bitmap.CompressFormat;
 public class CorkBoardUI extends Activity {
 
 	private static final String TAG = "CorkBoardUI"; 
+	
+	
+	private static final int REQUEST_CAPTURE_MEDIA = 1;
+	private static final int REQUEST_RETRIEVE_MEDIA = 2;
+
+
 
 	static final String PICSAY_PACKAGE_PREFIX = "com.shinycore.picsay";
 	static final String ACTION_MEDIA_CAPTURE = "mobisocial.intent.action.MEDIA_CAPTURE";
-	private static final int REQUEST_CAPTURE_MEDIA = 3;
 
 	public static final String PICTURE_SUBFOLDER = "Pictures/Musubi";
 	public static final String HTML_SUBFOLDER = "Musubi/HTML";
@@ -93,7 +98,9 @@ public class CorkBoardUI extends Activity {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				Intent gallery = new Intent(Intent.ACTION_GET_CONTENT);
-				gallery.setType("image/*");			
+				gallery.setType("image/*");	
+			    startActivityForResult(Intent.createChooser(gallery, "Select Picture"), REQUEST_RETRIEVE_MEDIA);
+
 			}
 		});
 
